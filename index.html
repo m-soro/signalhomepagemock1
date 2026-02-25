@@ -83,76 +83,87 @@
       border:1px solid rgba(255,255,255,.16);
       white-space:nowrap;
     }
-    /* .search{
-      flex:1;
+
+    /* Smart search (collapsed -> expands inline) */
+    .smart-search{
+      flex: 1;
       display:flex;
       align-items:center;
-      gap:10px;
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.16);
-      border-radius:999px;
-      padding:8px 12px;
-      min-width:260px;
-    }
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      color:#fff;
-      font-size:14px;
-    } */
+      gap:12px;
 
-    .search {
-      flex: 1;
-      display: flex;
-      align-items: center; /* Vertically centers the logo with the text block */
-      gap: 15px;
       background: rgba(255,255,255,.12);
       border: 1px solid rgba(255,255,255,.16);
-      border-radius: 12px; /* Smoother corner for a larger box */
-      padding: 12px 16px;
-      min-width: 300px;
-  }
-
-  /* This container stacks the heading and subheading */
-  .search-text-container {
-      display: flex;
-      flex-direction: column; 
-      gap: 2px;
-  }
-
-  .search img {
-      width: 40px; /* Makes the image much smaller */
-      height: auto;
-  }
-
-  .search input {
-      background: transparent;
-      border: none;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-      outline: none;
-      padding: 0;
-      width: 100%;
-  }
-
-  .search small {
-      color: rgba(255,255,255,0.7);
-      font-size: 12px;
-      line-height: 1.2;
-  }
-    .search input::placeholder{color:rgba(255,255,255,.75)}
-    .search .kbd{
-      font-size:12px;
-      opacity:.9;
-      padding:2px 8px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.10);
-      white-space:nowrap;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-width: 280px;
     }
+
+    .smart-search-logo{
+      width: 32px;
+      height: auto;
+      flex: 0 0 auto;
+    }
+
+    .smart-search-copy{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .smart-search-title{
+      color:#fff;
+      font-weight:800;
+      font-size:12px;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .smart-search-subtitle{
+      color: rgba(255,255,255,0.72);
+      font-size:12px;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .smart-search-toggle{
+      width:38px; height:38px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      flex: 0 0 auto;
+    }
+    .smart-search-toggle:hover{ background:rgba(255,255,255,.16); }
+
+    .smart-search-form{
+      display:none;
+      flex: 0 1 340px;
+    }
+
+    .smart-search-input{
+      width:100%;
+      height:38px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.10);
+      color:#fff;
+      padding: 0 12px;
+      outline:none;
+    }
+    .smart-search-input::placeholder{ color: rgba(255,255,255,.7); }
+
+    .smart-search.is-open .smart-search-copy{ display:none; }
+    .smart-search.is-open .smart-search-form{ display:block; }
+
     .nav-actions{
       display:flex;
       align-items:center;
@@ -479,24 +490,23 @@
       </div>
 
       <!-- “Smart Search” placeholder -->
-      <!-- <div class="search" title="Mock smart search (front-end only)">
-        <span aria-hidden="true"><img src='https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?' style="width: 80%; height: auto; vertical-align: middle;"></span>
-        <input type="search" placeholder="Meet Pointe, our AI Assistant"/>
-        <small>Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</small>
-      </div> -->
-      <div class="search" title="Mock smart search (front-end only)">
-      <span aria-hidden="true">
-        <img src='https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?'>
-      </span>
-      
-      <div class="search-text-container">
-        <input type="search" placeholder="Meet Pointe, our AI Assistant"/>
-        <small>Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</small>
+      <div class="smart-search" title="Mock smart search (front-end only)">
+        <img class="smart-search-logo" alt="" aria-hidden="true"
+             src="https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?" />
+
+        <div class="smart-search-copy">
+          <div class="smart-search-title">Meet Pointe, our AI Assistant</div>
+          <div class="smart-search-subtitle">Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</div>
+        </div>
+
+        <button class="smart-search-toggle" type="button" aria-label="Open search" aria-expanded="false">🔎</button>
+
+        <form class="smart-search-form" role="search">
+          <input class="smart-search-input" type="search" placeholder="Search…" />
+        </form>
       </div>
-    </div>
 
       <div class="nav-actions">
-        <button class="iconbtn" title="Notifications">🔎</button>
         <button class="iconbtn" title="Notifications">🔔</button>
         <button class="iconbtn" title="Help">❔</button>
         <div class="user">
@@ -818,13 +828,32 @@
     </p>
   </main>
 
-  <!-- Optional: tiny UX touch for Ctrl+K focus -->
   <script>
+    const smart = document.querySelector('.smart-search');
+    const toggle = document.querySelector('.smart-search-toggle');
+    const input  = document.querySelector('.smart-search-input');
+
+    function setOpen(nextOpen){
+      if (!smart) return;
+      smart.classList.toggle('is-open', nextOpen);
+      if (toggle) toggle.setAttribute('aria-expanded', String(nextOpen));
+      if (nextOpen && input) input.focus();
+      if (!nextOpen && input) input.value = '';
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const isOpen = smart.classList.contains('is-open');
+        setOpen(!isOpen);
+      });
+    }
+
     window.addEventListener("keydown", (e) => {
+      if (e.key === 'Escape') setOpen(false);
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        const input = document.querySelector('.search input');
-        if (input) input.focus();
+        setOpen(true);
       }
     });
   </script>
