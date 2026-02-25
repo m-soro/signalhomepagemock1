@@ -1,42 +1,861 @@
-<nav>
-    <div class="nav-actions">
-        <!-- Existing bell icon -->
-        <button class="bell-icon">🔔</button>
-        <!-- New magnifying glass toggle button -->
-        <button class="search-toggle" onclick="toggleSearch()">🔍</button>
-    </div>
-    <div class="smart-search">
-        <div class="logo-only">
-            <img src="logo.png" alt="Logo">
-        </div>
-        <div class="search-input" style="display:none;">
-            <input type="text" placeholder="Search..." onkeydown="handleKeyDown(event)">
-        </div>
-    </div>
-</nav>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Signal — Home (Mock)</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
 
-<script>
-function toggleSearch() {
-    const searchInput = document.querySelector('.search-input');
-    const logoOnly = document.querySelector('.logo-only');
-    if (searchInput.style.display === 'none') {
-        searchInput.style.display = 'block';
-        logoOnly.style.display = 'none';
-        document.querySelector('.search-input input').focus();
-    } else {
-        searchInput.style.display = 'none';
-        logoOnly.style.display = 'block';
-    }
-}
+      /* Brand-ish */
+      --nav:#0b3a4a;        /* deep teal */
+      --nav2:#0a2e3a;
+      --accent:#14b8a6;     /* teal */
+      --accent2:#38bdf8;    /* sky */
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
 
-function handleKeyDown(event) {
-    if (event.key === 'Escape') {
-        toggleSearch();
-    } else if (event.ctrlKey || event.metaKey) {
-        if (event.key === 'k') {
-            event.preventDefault();
-            toggleSearch();
-        }
+      --radius:14px;
+      --shadow:0 10px 30px rgba(15, 23, 42, .08);
     }
-}
-</script>
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:var(--bg);
+    }
+    a{color:inherit; text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Top Nav */
+    .topbar{
+      background:linear-gradient(90deg, var(--nav), var(--nav2));
+      color:#fff;
+      padding:14px 18px;
+      position:sticky;
+      top:0;
+      z-index:50;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .topbar-inner{
+      max-width:1200px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:180px;
+    }
+    .logo{
+      width:34px; height:34px;
+      border-radius:10px;
+      background:rgba(255,255,255,.14);
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      letter-spacing:.4px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.95;
+    }
+    .pill{
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.16);
+      white-space:nowrap;
+    }
+
+    /* Smart search (collapsed -> expands inline) */
+    .smart-search{
+      flex: 1;
+      display:flex;
+      align-items:center;
+      gap:12px;
+
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-width: 280px;
+    }
+
+    .smart-search-logo{
+      width: 32px;
+      height: auto;
+      flex: 0 0 auto;
+    }
+
+    .smart-search-copy{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .smart-search-title{
+      color:#fff;
+      font-weight:800;
+      font-size:12px;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .smart-search-subtitle{
+      color: rgba(255,255,255,0.72);
+      font-size:12px;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .smart-search-toggle{
+      width:38px; height:38px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      flex: 0 0 auto;
+    }
+    .smart-search-toggle:hover{ background:rgba(255,255,255,.16); }
+
+    .smart-search-form{
+      display:none;
+      flex: 0 1 340px;
+    }
+
+    .smart-search-input{
+      width:100%;
+      height:38px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.10);
+      color:#fff;
+      padding: 0 12px;
+      outline:none;
+    }
+    .smart-search-input::placeholder{ color: rgba(255,255,255,.7); }
+
+    .smart-search.is-open .smart-search-copy{ display:none; }
+    .smart-search.is-open .smart-search-form{ display:block; }
+
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .iconbtn{
+      width:38px; height:38px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+    }
+    .iconbtn:hover{background:rgba(255,255,255,.16)}
+    .user{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-left:10px;
+      border-left:1px solid rgba(255,255,255,.18);
+      margin-left:6px;
+    }
+    .avatar{
+      width:32px; height:32px;
+      border-radius:999px;
+      background:rgba(255,255,255,.16);
+      display:grid;
+      place-items:center;
+      font-weight:700;
+    }
+    .user small{display:block; opacity:.8; font-size:12px; line-height:1.1}
+    .user strong{display:block; font-size:13px; line-height:1.1}
+
+    /* Layout */
+    .wrap{max-width:1200px; margin:0 auto; padding:18px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    /* Cards */
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .card-h{
+      padding:14px 16px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      border-bottom:1px solid var(--line);
+    }
+    .card-h h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.02em;
+    }
+    .card-h p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .card-b{padding:14px 16px}
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn:hover{background:#f8fafc}
+    .btn-primary{
+      background:var(--accent);
+      color:#062c2a;
+      border-color:rgba(0,0,0,.06);
+    }
+    .btn-primary:hover{filter:brightness(.98)}
+    .btn-ghost{
+      background:transparent;
+      color:var(--muted);
+    }
+    .btn-small{padding:8px 10px; font-size:12px; border-radius:10px}
+
+    /* Hero / Summary Row */
+    .hero{
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    .hero-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .hero-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .tag{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+    .kpi{
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+    .kpi .label{font-size:12px; color:var(--muted)}
+    .kpi .value{font-size:18px; font-weight:900; margin-top:6px}
+    .kpi .hint{font-size:12px; color:var(--muted); margin-top:4px}
+
+    /* Pipeline */
+    .pipeline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .stage{
+      flex:1;
+      min-width:150px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .stage strong{font-size:12px}
+    .stage span{
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    /* Quick Actions */
+    .actions{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+    .action{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .action .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .badge{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      background:#f8fafc;
+      white-space:nowrap;
+    }
+    .action h3{margin:0; font-size:13px}
+    .action p{margin:6px 0 10px; font-size:12px; color:var(--muted); line-height:1.35}
+
+    /* Lists / Links */
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+    }
+    .row .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .row .left strong{
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .row .left small{font-size:12px; color:var(--muted)}
+    .row .right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    /* Right column: Daily Pulse */
+    .pulse{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .pulse-item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .pulse-item .meta{display:flex; justify-content:space-between; align-items:center; gap:10px}
+    .pulse-item .meta strong{font-size:13px}
+    .pill2{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .pill-good{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.08)}
+    .pill-warn{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.10)}
+    .pill-bad{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.08)}
+    .pulse-item p{margin:8px 0 0; font-size:12px; color:var(--muted); line-height:1.35}
+
+    /* Section cards */
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;
+      color:var(--ink);
+    }
+    .chip:hover{background:#f8fafc}
+    .muted{color:var(--muted)}
+    .foot{
+      margin:18px 0 0;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .kpis{grid-template-columns: repeat(2, minmax(0,1fr))}
+      .actions{grid-template-columns: 1fr}
+      .two-col{grid-template-columns: 1fr}
+      .brand{min-width:auto}
+      .pill{display:none}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top navigation -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div>
+          <h1>The Signal</h1>
+        </div>
+      </div>
+
+      <!-- “Smart Search” placeholder -->
+      <div class="smart-search" title="Mock smart search (front-end only)">
+        <img class="smart-search-logo" alt="" aria-hidden="true"
+             src="https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?" />
+
+        <div class="smart-search-copy">
+          <div class="smart-search-title">Meet Pointe, our AI Assistant</div>
+          <div class="smart-search-subtitle">Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</div>
+        </div>
+
+        <button class="smart-search-toggle" type="button" aria-label="Open search" aria-expanded="false">🔎</button>
+
+        <form class="smart-search-form" role="search">
+          <input class="smart-search-input" type="search" placeholder="Search…" />
+        </form>
+      </div>
+
+      <div class="nav-actions">
+        <button class="iconbtn" title="Notifications">🔔</button>
+        <button class="iconbtn" title="Help">❔</button>
+        <div class="user">
+          <div class="avatar">MS</div>
+          <div>
+            <strong>BPT Sherpa</strong>
+            <small class="muted">Everest Climb</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- HERO: agency context + high-level KPIs + pipeline -->
+    <section class="card">
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <h2 style="margin:0; font-size:18px; letter-spacing:.01em;">Agency: Everest Climb</h2>
+              <span class="tag">Current Ranking: <strong>0</strong> of <strong>244</strong></span>
+              <span class="tag">Contest Minimum: <strong>$35,000</strong></span>
+              <span class="tag">Total Contest (YTD): <strong>$0</strong></span>
+            </div>
+            <div class="hero-meta" style="margin-top:8px;">
+              <span>Tip: This area can be audience-targeted (Exec vs Manager vs User).</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <button class="btn btn-ghost">Manage Shortcuts</button>
+            <button class="btn btn-primary">Hide/Show Metrics</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <!-- Edit labels + values freely -->
+          <div class="kpi">
+            <div class="label">Amplify</div>
+            <div class="value">22</div>
+            <div class="hint">Product Recommendations</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Boost</div>
+            <div class="value">7</div>
+            <div class="hint">Marketing Leads</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Connect</div>
+            <div class="value">2</div>
+            <div class="hint">CoSell Opportunities</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Synergy</div>
+            <div class="value">158</div>
+            <div class="hint">Intent Signals</div>
+          </div>
+        </div>
+
+        <div class="pipeline" aria-label="Sales funnel stages">
+          <div class="stage"><strong>Discovery</strong> <span>183</span></div>
+          <div class="stage"><strong>Pipeline</strong> <span>53</span></div>
+          <div class="stage"><strong>Best Case</strong> <span>23</span></div>
+          <div class="stage"><strong>Commit</strong> <span>0</span></div>
+          <div class="stage"><strong>Ready for Booking</strong> <span>8</span></div>
+          <div class="stage"><strong>Booked</strong> <span>0</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:16px"></div>
+
+    <!-- MAIN GRID: Left = actions + active work, Right = daily pulse -->
+    <section class="grid">
+      <!-- Left column -->
+      <div class="left">
+        <!-- Quick Actions Hub -->
+        <section class="card">
+          <div class="card-h">
+            <div>
+              <h2>I want to create…</h2>
+              <p>High-frequency actions that shouldn’t require hunting through link grids.</p>
+            </div>
+          </div>
+          <div class="card-b">
+            <div class="actions">
+              <div class="action">
+                <div class="top">
+                  <h3>Create Lead/Deal</h3>
+                  <span class="badge">Quick Action</span>
+                </div>
+                <p>Start a new deal record from anywhere.</p>
+                <button class="btn btn-primary" style="width:100%;">+ New Deal</button>
+              </div>
+
+              <div class="action">
+                <div class="top">
+                  <h3>Submit Ticket</h3>
+                  <span class="badge">Commission</span>
+                </div>
+                <p>Open a commission ticket (missing split, correction, dispute).</p>
+                <button class="btn" style="width:100%;">Open Ticket</button>
+              </div>
+
+              <div class="action">
+                <div class="top">
+                  <h3>Use a Tool</h3>
+                  <span class="badge">Toolbox</span>
+                </div>
+                <p>Jump into utilities (Finder tools, merge, network paths).</p>
+                <button class="btn" style="width:100%;">My Toolbox</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div style="height:16px"></div>
+
+        <!-- My Active Work -->
+        <section class="card">
+          <div class="card-h">
+            <div>
+              <h2>I want to check…</h2>
+              <p>“My Active Work” list-view style links, grouped by intent.</p>
+            </div>
+            <button class="btn btn-small">View All</button>
+          </div>
+
+          <div class="card-b">
+            <div class="list">
+              <!-- Edit these rows to your real links -->
+              <a class="row" href="#" title="Open Deals">
+                <div class="left">
+                  <strong>Open Deals</strong>
+                  <small>View deals assigned to me</small>
+                </div>
+                <div class="right">
+                  <span class="pill2 pill-warn">404</span>
+                  <span>→</span>
+                </div>
+              </a>
+
+              <a class="row" href="#" title="Deals Closing This Month">
+                <div class="left">
+                  <strong>Deals Closing This Month</strong>
+                  <small>Time-sensitive follow-ups</small>
+                </div>
+                <div class="right">
+                  <span class="pill2 pill-good">7</span>
+                  <span>→</span>
+                </div>
+              </a>
+
+              <a class="row" href="#" title="Open Commission Tickets">
+                <div class="left">
+                  <strong>Open Commission Tickets</strong>
+                  <small>Tickets needing attention</small>
+                </div>
+                <div class="right">
+                  <span class="pill2 pill-bad">2</span>
+                  <span>→</span>
+                </div>
+              </a>
+
+              <a class="row" href="#" title="Ready for Booking">
+                <div class="left">
+                  <strong>Ready for Booking</strong>
+                  <small>Deals flagged ready to book</small>
+                </div>
+                <div class="right">
+                  <span class="pill2 pill-warn">$22,131</span>
+                  <span>→</span>
+                </div>
+              </a>
+
+              <!-- Example deep link (replace with your real URL) -->
+              <a class="row" href="https://bpt.my.site.com/signal/s/deals?Deal__c-filterId=Signal_Ready_for_Booking" target="_blank" rel="noreferrer">
+                <div class="left">
+                  <strong>Open Sales Ops Cases</strong>
+                  <small class="muted">Example of a pinned “shortcut”</small>
+                </div>
+                <div class="right">
+                  <span class="pill2">Pinned</span>
+                  <span>↗</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <div style="height:16px"></div>
+
+        <!-- Toolbox + Resources -->
+        <section class="card">
+          <div class="card-h">
+            <div>
+              <h2>I want to find / learn…</h2>
+              <p>Keep the homepage light: only top links here. Everything else goes behind “View All”.</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-small">View All Tools</button>
+              <button class="btn btn-small">View All Resources</button>
+            </div>
+          </div>
+
+          <div class="card-b">
+            <div class="two-col">
+              <div>
+                <h3 style="margin:0 0 10px; font-size:13px;">My Toolbox</h3>
+                <div class="links">
+                  <a class="chip" href="#">🧭 Network Path Finder</a>
+                  <a class="chip" href="#">📡 Bandwidth Finder</a>
+                  <a class="chip" href="#">🏢 Data Center Finder</a>
+                  <a class="chip" href="#">🧩 Merge Companies</a>
+                </div>
+              </div>
+
+              <div>
+                <h3 style="margin:0 0 10px; font-size:13px;">Resources &amp; Guides</h3>
+                <div class="links">
+                  <a class="chip" href="#">📘 Knowledge Base</a>
+                  <a class="chip" href="#">🗓️ Commission Run Schedule</a>
+                  <a class="chip" href="#">🎓 Bridgepointe University</a>
+                  <a class="chip" href="#">📂 Supplier Portfolio</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right column -->
+      <aside class="right">
+        <!-- My Daily Pulse -->
+        <section class="card">
+          <div class="card-h">
+            <div>
+              <h2>My Daily Pulse</h2>
+              <p>Personalized, “no-click value” insights for the logged-in user.</p>
+            </div>
+          </div>
+          <div class="card-b">
+            <div class="pulse">
+              <div class="pulse-item">
+                <div class="meta">
+                  <strong>Deals closing this week</strong>
+                  <span class="pill2 pill-warn">3</span>
+                </div>
+                <p>Two need next steps. One is waiting on supplier confirmation.</p>
+              </div>
+
+              <div class="pulse-item">
+                <div class="meta">
+                  <strong>Next commission estimate</strong>
+                  <span class="pill2 pill-good">$1,240</span>
+                </div>
+                <p>Based on current split + booked status (mock data).</p>
+              </div>
+
+              <div class="pulse-item">
+                <div class="meta">
+                  <strong>Alerts</strong>
+                  <span class="pill2 pill-bad">2</span>
+                </div>
+                <p>1 expiring contract + 1 variance alert (mock).</p>
+              </div>
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" style="flex:1;">View My Deals</button>
+              <button class="btn" style="flex:1;">View My Tickets</button>
+            </div>
+          </div>
+        </section>
+
+        <div style="height:16px"></div>
+
+        <!-- Events (turn “dead space” into “at-a-glance”) -->
+        <section class="card">
+          <div class="card-h">
+            <div>
+              <h2>Upcoming</h2>
+              <p>Show next 3 items so the section earns its space.</p>
+            </div>
+            <button class="btn btn-small">Open Calendar</button>
+          </div>
+          <div class="card-b">
+            <div class="list">
+              <a class="row" href="#">
+                <div class="left">
+                  <strong>BPT Events Calendar</strong>
+                  <small>Thu • 2:00 PM • Partner Q&amp;A</small>
+                </div>
+                <div class="right"><span>→</span></div>
+              </a>
+              <a class="row" href="#">
+                <div class="left">
+                  <strong>Supplier Events</strong>
+                  <small>Fri • 11:00 AM • New promo briefing</small>
+                </div>
+                <div class="right"><span>→</span></div>
+              </a>
+              <a class="row" href="#">
+                <div class="left">
+                  <strong>Training: The Bridgepointe Way</strong>
+                  <small>Next week • 30 min module</small>
+                </div>
+                <div class="right"><span>→</span></div>
+              </a>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <p class="foot">
+      Mock-only HTML. Swap the <span class="muted">href</span> links with real Experience Cloud URLs, then translate into LWC/Audience components later.
+    </p>
+  </main>
+
+  <script>
+    const smart = document.querySelector('.smart-search');
+    const toggle = document.querySelector('.smart-search-toggle');
+    const input  = document.querySelector('.smart-search-input');
+
+    function setOpen(nextOpen){
+      if (!smart) return;
+      smart.classList.toggle('is-open', nextOpen);
+      if (toggle) toggle.setAttribute('aria-expanded', String(nextOpen));
+      if (nextOpen && input) input.focus();
+      if (!nextOpen && input) input.value = '';
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const isOpen = smart.classList.contains('is-open');
+        setOpen(!isOpen);
+      });
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === 'Escape') setOpen(false);
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(true);
+      }
+    });
+  </script>
+</body>
+</html>
