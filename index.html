@@ -83,7 +83,7 @@
       border:1px solid rgba(255,255,255,.16);
       white-space:nowrap;
     }
-    .search{
+    /* .search{
       flex:1;
       display:flex;
       align-items:center;
@@ -101,7 +101,48 @@
       background:transparent;
       color:#fff;
       font-size:14px;
-    }
+    } */
+
+    .search {
+      flex: 1;
+      display: flex;
+      align-items: center; /* Vertically centers the logo with the text block */
+      gap: 15px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 12px; /* Smoother corner for a larger box */
+      padding: 12px 16px;
+      min-width: 300px;
+  }
+
+  /* This container stacks the heading and subheading */
+  .search-text-container {
+      display: flex;
+      flex-direction: column; 
+      gap: 2px;
+  }
+
+  .search img {
+      width: 40px; /* Makes the image much smaller */
+      height: auto;
+  }
+
+  .search input {
+      background: transparent;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      outline: none;
+      padding: 0;
+      width: 100%;
+  }
+
+  .search small {
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      line-height: 1.2;
+  }
     .search input::placeholder{color:rgba(255,255,255,.75)}
     .search .kbd{
       font-size:12px;
@@ -438,11 +479,21 @@
       </div>
 
       <!-- “Smart Search” placeholder -->
+      <!-- <div class="search" title="Mock smart search (front-end only)">
+        <span aria-hidden="true"><img src='https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?' style="width: 80%; height: auto; vertical-align: middle;"></span>
+        <input type="search" placeholder="Meet Pointe, our AI Assistant"/>
+        <small>Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</small>
+      </div> -->
       <div class="search" title="Mock smart search (front-end only)">
-        <span aria-hidden="true"><img src='https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?' style="width: auto; height: 50%; vertical-align: middle;"></span>
-        <input type="search" placeholder="Meet Pointe, our AI Assistant/n"/>
+      <span aria-hidden="true">
+        <img src='https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?'>
+      </span>
+      
+      <div class="search-text-container">
+        <input type="search" placeholder="Meet Pointe, our AI Assistant"/>
         <small>Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</small>
       </div>
+    </div>
 
       <div class="nav-actions">
         <button class="iconbtn" title="Notifications">🔎</button>
