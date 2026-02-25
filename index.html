@@ -84,13 +84,12 @@
       white-space:nowrap;
     }
 
-    /* Smart search (collapsed -> expands inline) */
-    .smart-search{
+    /* Search Box Component */
+    .search-box{
       flex: 1;
       display:flex;
       align-items:center;
       gap:12px;
-
       background: rgba(255,255,255,.12);
       border: 1px solid rgba(255,255,255,.16);
       border-radius: 12px;
@@ -98,40 +97,61 @@
       min-width: 280px;
     }
 
-    .smart-search-logo{
+    .search-logo{
       width: 32px;
       height: auto;
       flex: 0 0 auto;
+      display: block;
     }
 
-    .smart-search-copy{
+    .search-mode-icon{
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      font-size: 20px;
+      display: none;
+      place-items: center;
+    }
+
+    .search-box.search-mode .search-logo{
+      display: none;
+    }
+
+    .search-box.search-mode .search-mode-icon{
+      display: grid;
+    }
+
+    .search-placeholder{
+      display:none;
+    }
+
+    .search-placeholder-title{
+      display:none;
+    }
+
+    .search-placeholder-subtitle{
+      display:none;
+    }
+
+    .search-form{
       display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width: 0;
-      flex: 1 1 auto;
+      flex: 1;
     }
 
-    .smart-search-title{
+    .search-input{
+      width:100%;
+      height:38px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.10);
       color:#fff;
-      font-weight:800;
-      font-size:12px;
-      line-height:1.2;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      padding: 0 12px;
+      outline:none;
+      font-size:13px;
     }
+    .search-input::placeholder{ color: rgba(255,255,255,.7); font-size:12px; }
 
-    .smart-search-subtitle{
-      color: rgba(255,255,255,0.72);
-      font-size:12px;
-      line-height:1.2;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .smart-search-toggle{
+    .search-toggle{
       width:38px; height:38px;
       border-radius:12px;
       border:1px solid rgba(255,255,255,.18);
@@ -141,28 +161,17 @@
       place-items:center;
       cursor:pointer;
       flex: 0 0 auto;
+      font-size: 16px;
+      padding: 0;
     }
-    .smart-search-toggle:hover{ background:rgba(255,255,255,.16); }
+    .search-toggle:hover{ background:rgba(255,255,255,.16); }
 
-    .smart-search-form{
-      display:none;
-      flex: 0 1 340px;
+    .search-box.is-open{
+      padding: 10px 16px;
+      gap: 8px;
     }
 
-    .smart-search-input{
-      width:100%;
-      height:38px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.22);
-      background: rgba(0,0,0,.10);
-      color:#fff;
-      padding: 0 12px;
-      outline:none;
-    }
-    .smart-search-input::placeholder{ color: rgba(255,255,255,.7); }
-
-    .smart-search.is-open .smart-search-copy{ display:none; }
-    .smart-search.is-open .smart-search-form{ display:block; }
+    .search-box.search-mode .search-placeholder{ display: none; }
 
     .nav-actions{
       display:flex;
@@ -489,24 +498,19 @@
         </div>
       </div>
 
-      <!-- “Smart Search” placeholder -->
-      <div class="smart-search" title="Mock smart search (front-end only)">
-        <img class="smart-search-logo" alt="" aria-hidden="true"
+      <!-- Search Box with Pointe AI Placeholder -->
+      <div class="search-box" title="Search">
+        <img class="search-logo" alt="" aria-hidden="true"
              src="https://bpt--bptfull--c.sandbox.vf.force.com/resource/1757625394000/AIAssistantLogo?" />
+        <span class="search-mode-icon" aria-hidden="true">🔎</span>
 
-        <div class="smart-search-copy">
-          <div class="smart-search-title">Meet Pointe, our AI Assistant</div>
-          <div class="smart-search-subtitle">Ask Questions about your portfolio and our suppliers, and get insights powered by AI.</div>
-        </div>
-
-        <button class="smart-search-toggle" type="button" aria-label="Open search" aria-expanded="false">🔎</button>
-
-        <form class="smart-search-form" role="search">
-          <input class="smart-search-input" type="search" placeholder="Search…" />
+        <form class="search-form" role="search">
+          <input class="search-input" type="search" placeholder="Meet Pointe, our AI Assistant. Ask Questions about your portfolio and our suppliers, and get insights powered by AI." />
         </form>
       </div>
 
       <div class="nav-actions">
+        <button class="search-toggle" type="button" aria-label="Open search" aria-expanded="false" title="Search">🔎</button>
         <button class="iconbtn" title="Notifications">🔔</button>
         <button class="iconbtn" title="Help">❔</button>
         <div class="user">
@@ -829,31 +833,46 @@
   </main>
 
   <script>
-    const smart = document.querySelector('.smart-search');
-    const toggle = document.querySelector('.smart-search-toggle');
-    const input  = document.querySelector('.smart-search-input');
+    const searchBox = document.querySelector('.search-box');
+    const searchToggle = document.querySelector('.search-toggle');
+    const searchInput = document.querySelector('.search-input');
+    const aiPlaceholder = 'Meet Pointe, our AI Assistant. Ask Questions about your portfolio and our suppliers, and get insights powered by AI.';
+    const searchPlaceholder = 'Search...';
 
-    function setOpen(nextOpen){
-      if (!smart) return;
-      smart.classList.toggle('is-open', nextOpen);
-      if (toggle) toggle.setAttribute('aria-expanded', String(nextOpen));
-      if (nextOpen && input) input.focus();
-      if (!nextOpen && input) input.value = '';
+    function setSearchOpen(nextOpen, isSearchMode = false){
+      if (!searchBox) return;
+      searchBox.classList.toggle('is-open', nextOpen);
+      searchBox.classList.toggle('search-mode', nextOpen && isSearchMode);
+      if (searchToggle) searchToggle.setAttribute('aria-expanded', String(nextOpen));
+      if (nextOpen && searchInput) {
+        searchInput.focus();
+        if (isSearchMode) {
+          searchInput.placeholder = searchPlaceholder;
+        } else {
+          searchInput.placeholder = aiPlaceholder;
+        }
+      }
+      if (!nextOpen && searchInput) {
+        searchInput.value = '';
+        searchInput.placeholder = aiPlaceholder;
+      }
     }
 
-    if (toggle) {
-      toggle.addEventListener('click', () => {
-        const isOpen = smart.classList.contains('is-open');
-        setOpen(!isOpen);
+    if (searchToggle) {
+      searchToggle.addEventListener('click', () => {
+        const isOpen = searchBox.classList.contains('is-open');
+        setSearchOpen(!isOpen, true);
       });
     }
 
     window.addEventListener("keydown", (e) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setSearchOpen(false, false);
+      }
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen(true);
+        setSearchOpen(true, true);
       }
     });
   </script>
